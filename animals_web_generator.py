@@ -5,31 +5,47 @@ def load_data(file_path):
   with open(file_path, "r") as handle:
     return json.load(handle)
 
-animal_data = load_data("animals_data.json")
+data = load_data("animals_data.json")
 
-output = ''  # Define empty string to build HTML
+output = ''  # Initialize empty output string
 
-for animal in animal_data:
-    fields = []
+for animal_data in data:
+    # Skip animals without a name
+    if 'name' not in animal_data:
+        continue
 
-    # Name field
-    if 'name' in animal:
-        fields.append(f"Name: {animal['name']}")
+    # Start building the list item
+    li_content = []
+    li_content.append('<li class="cards__item">')
+    li_content.append(f'  <div class="card__title">{animal_data["name"]}</div>')
 
-    # Characteristics - Diet
-    if 'characteristics' in animal and 'diet' in animal['characteristics']:
-        fields.append(f"Diet: {animal['characteristics']['diet']}")
+    # Collect details for the paragraph
+    details = []
 
-    if 'characteristics' in animal and 'type' in animal['characteristics']:
-        fields.append(f"Type: {animal['characteristics']['type']}")
+    # Check and add diet
+    if 'characteristics' in animal_data and 'diet' in animal_data['characteristics']:
+        diet = animal_data['characteristics']['diet']
+        details.append(f'<strong>Diet:</strong> {diet}')
 
-    # Location
-    if 'locations' in animal and len(animal['locations']) > 0:
-        fields.append(f"Location: {animal['locations'][0]}")
+    # Check and add location
+    if 'locations' in animal_data and len(animal_data['locations']) > 0:
+        location = animal_data['locations'][0]
+        details.append(f'<strong>Location:</strong> {location}')
 
-    if fields:
-        output += '<li class="cards__item">\n'
-        output += '<br/>\n'.join(fields)
-        output += '\n</li>\n'
+    # Check and add type
+    if 'characteristics' in animal_data and 'type' in animal_data['characteristics']:
+        animal_type = animal_data['characteristics']['type']
+        details.append(f'<strong>Type:</strong> {animal_type}')
+
+    # Add details paragraph if any details exist
+    if details:
+        li_content.append('  <p class="card__text">')
+        li_content.append('<br/>\n    '.join(details))
+        li_content.append('  </p>')
+
+    li_content.append('</li>')
+
+    # Add to main output
+    output += '\n'.join(li_content) + '\n'
 
 print(output)
