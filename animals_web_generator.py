@@ -5,24 +5,31 @@ def load_data(file_path):
   with open(file_path, "r") as handle:
     return json.load(handle)
 
-animals_data = load_data('animals_data.json')
+animal_data = load_data("animals_data.json")
 
-for animal in animals_data:
+output = ''  # Define empty string to build HTML
 
-    output_parts = []
+for animal in animal_data:
+    fields = []
 
-
+    # Name field
     if 'name' in animal:
-        output_parts.append(f"Name: {animal['name']}")
+        fields.append(f"Name: {animal['name']}")
 
+    # Characteristics - Diet
     if 'characteristics' in animal and 'diet' in animal['characteristics']:
-        output_parts.append(f"Diet: {animal['characteristics']['diet']}")
+        fields.append(f"Diet: {animal['characteristics']['diet']}")
+
+    if 'characteristics' in animal and 'type' in animal['characteristics']:
+        fields.append(f"Type: {animal['characteristics']['type']}")
+
+    # Location
     if 'locations' in animal and len(animal['locations']) > 0:
-        output_parts.append(f"Location: {animal['locations'][0]}")
-    if 'type' in animal['characteristics']:
-        output_parts.append(f"Type: {animal['characteristics']['type']}")
+        fields.append(f"Location: {animal['locations'][0]}")
 
+    if fields:
+        output += '<li class="cards__item">\n'
+        output += '<br/>\n'.join(fields)
+        output += '\n</li>\n'
 
-
-    if output_parts:
-        print('\n'.join(output_parts))
+print(output)
