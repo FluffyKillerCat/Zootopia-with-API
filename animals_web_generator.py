@@ -1,51 +1,120 @@
 import json
 
+
 def load_data(file_path):
-  """ Loads a JSON file """
-  with open(file_path, "r") as handle:
-    return json.load(handle)
+    """Loads a JSON file."""
+    with open(file_path, "r") as handle:
+        return json.load(handle)
 
-data = load_data("animals_data.json")
 
-output = ''  # Initialize empty output string
+def get_skin_types(data):
+    """Extracts all unique skin types from the dataset."""
+    skin_types = set()
+    for animal in data:
+        if 'characteristics' in animal and 'skin_type' in animal['characteristics']:
+            skin_types.add(animal['characteristics']['skin_type'])
+    return list(skin_types)
 
-for animal_data in data:
-    # Skip animals without a name
+
+def serialize_animal(animal_data):
+    """Transforms an animal's data into an HTML list item."""
     if 'name' not in animal_data:
-        continue
+        return ""
 
-    # Start building the list item
-    li_content = []
-    li_content.append('<li class="cards__item">')
+    li_content = [f'<li class="cards__item">']
     li_content.append(f'  <div class="card__title">{animal_data["name"]}</div>')
-
-    # Collect details for the paragraph
     details = []
 
-    # Check and add diet
-    if 'characteristics' in animal_data and 'diet' in animal_data['characteristics']:
-        diet = animal_data['characteristics']['diet']
-        details.append(f'<strong>Diet:</strong> {diet}')
+    if 'characteristics' in animal_data:
+        if 'diet' in animal_data['characteristics']:
+            details.append(f'<strong>Diet:</strong> {animal_data["characteristics"]["diet"]}')
+        if 'type' in animal_data['characteristics']:
+            details.append(f'<strong>Type:</strong> {animal_data["characteristics"]["type"]}')
 
-    # Check and add location
-    if 'locations' in animal_data and len(animal_data['locations']) > 0:
-        location = animal_data['locations'][0]
-        details.append(f'<strong>Location:</strong> {location}')
+    if 'locations' in animal_data and animal_data['locations']:
+        details.append(f'<strong>Location:</strong> {animal_data["locations"][0]}')
 
-    # Check and add type
-    if 'characteristics' in animal_data and 'type' in animal_data['characteristics']:
-        animal_type = animal_data['characteristics']['type']
-        details.append(f'<strong>Type:</strong> {animal_type}')
-
-    # Add details paragraph if any details exist
     if details:
         li_content.append('  <p class="card__text">')
         li_content.append('<br/>\n    '.join(details))
         li_content.append('  </p>')
 
     li_content.append('</li>')
+    return '\n'.join(li_content)
 
-    # Add to main output
-    output += '\n'.join(li_content) + '\n'
 
-print(output)
+def generate_html(data):
+    """Generates a full HTML file with animal data."""
+    animals_html = '\n'.join(serialize_animal(animal) for animal in data)
+
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Animal Cards</title>
+        <style>
+            html {{ background-color: #ffe9e9; }}
+            h1 {{ text-align: center; font-size: 40pt; font-weight: normal; }}
+            body {{
+                font-family: 'Roboto','Helvetica Neue', Helvetica, Arial, sans-serif;
+                font-style: normal;
+                font-weight: 400;
+                letter-spacing: 0;
+                padding: 1rem;
+                text-rendering: optimizeLegibility;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                -moz-font-feature-settings: "liga" on;
+                width: 900px;
+                margin: auto;
+            }}
+            .cards {{ list-style: none; margin: 0; padding: 0; }}
+            .cards__item {{
+                background-color: white;
+                border-radius: 0.25rem;
+                box-shadow: 0 20px 40px -14px rgba(0,0,0,0.25);
+                overflow: hidden;
+                padding: 1rem;
+                margin: 50px;
+            }}
+            .card__title {{
+                color: #696969;
+                font-size: 1.25rem;
+                font-weight: 300;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }}
+            .card__text {{
+                flex: 1 1 auto;
+                font-size: 0.95rem;
+                line-height: 2;
+                margin-bottom: 1.25rem;
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Animal Cards</h1>
+        <ul class="cards">
+            {animals_html}
+        </ul>
+    </body>
+    </html>
+    """
+    return html_template
+
+
+def main():
+    """Main function to execute the program."""
+    data = load_data("animals_data.json")
+    html_content = generate_html(data)
+
+    with open("animals_template.html", "w") as file:
+        file.write(html_content)
+
+    print("HTML file generated successfully.")
+
+
+if __name__ == "__main__":
+    main()
