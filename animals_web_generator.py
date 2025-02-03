@@ -1,5 +1,5 @@
 import json
-import requests
+
 import data_fetcher
 
 
