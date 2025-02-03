@@ -1,6 +1,7 @@
 import json
 import requests
-API_KEY = "aycm9DtO02IJj3hbbbZ88A==4iYwArvBlXovtCHN"
+import data_fetcher
+
 
 def get_animal_from_user():
     """Get Animal name from user"""
@@ -9,10 +10,7 @@ def get_animal_from_user():
 
 
 
-def fetch_data(animal):
-    URL = f"https://api.api-ninjas.com/v1/animals?name={animal}"
-    res = requests.get(URL, headers={'X-Api-Key': API_KEY})
-    return res.json()
+
 
 
 
@@ -131,7 +129,7 @@ def main():
     while True:
         animal = get_animal_from_user()
 
-        data = fetch_data(animal)
+        data = data_fetcher.fetch_data(animal)
         if data:
 
             html_content = generate_html(data, True, animal)
