@@ -34,6 +34,11 @@
     "Python.animals_web_generator.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "API"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "Requirements"
+    ]
   }
 }]]></component>
   <component name="SharedIndexes">
