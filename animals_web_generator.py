@@ -1,4 +1,18 @@
 import json
+import requests
+
+def get_animal_from_user():
+    """Get Animal name from user"""
+    animal_name = input('Which Animal Would you like to display? ')
+    return animal_name
+
+
+
+def fetch_data(animal):
+    URL = f"https://api.api-ninjas.com/v1/animals?name={animal}"
+
+
+
 
 
 def load_data(file_path):
@@ -107,6 +121,8 @@ def generate_html(data):
 
 def main():
     """Main function to execute the program."""
+    animal = get_animal_from_user()
+
     data = load_data("animals_data.json")
     html_content = generate_html(data)
 
