@@ -1,5 +1,6 @@
 import json
 import requests
+API_KEY = "aycm9DtO02IJj3hbbbZ88A==4iYwArvBlXovtCHN"
 
 def get_animal_from_user():
     """Get Animal name from user"""
@@ -10,6 +11,8 @@ def get_animal_from_user():
 
 def fetch_data(animal):
     URL = f"https://api.api-ninjas.com/v1/animals?name={animal}"
+    res = requests.get(URL, headers={'X-Api-Key': API_KEY})
+    return res.json()
 
 
 
@@ -57,9 +60,13 @@ def serialize_animal(animal_data):
     return '\n'.join(li_content)
 
 
-def generate_html(data):
+def generate_html(data, switch, animal):
     """Generates a full HTML file with animal data."""
-    animals_html = '\n'.join(serialize_animal(animal) for animal in data)
+    if switch:
+        animals_html = '\n'.join(serialize_animal(animal) for animal in data)
+    else:
+        animals_html = f"<h2>The animal {animal} doesn't exist.</h2>"
+
 
     html_template = f"""
     <!DOCTYPE html>
@@ -121,15 +128,23 @@ def generate_html(data):
 
 def main():
     """Main function to execute the program."""
-    animal = get_animal_from_user()
+    while True:
+        animal = get_animal_from_user()
 
-    data = load_data("animals_data.json")
-    html_content = generate_html(data)
+        data = fetch_data(animal)
+        if data:
 
-    with open("animals_template.html", "w") as file:
-        file.write(html_content)
+            html_content = generate_html(data, True, animal)
 
-    print("HTML file generated successfully.")
+
+
+        else:
+
+            html_content = generate_html(data, False, animal)
+        with open("animals_template.html", "w") as file:
+            file.write(html_content)
+
+        print("HTML file generated successfully.")
 
 
 if __name__ == "__main__":
