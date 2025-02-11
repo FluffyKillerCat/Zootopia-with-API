@@ -36,84 +36,30 @@ def serialize_animal(animal_data):
 
     if details:
         li_content.append('  <p class="card__text">')
-        li_content.append('<br/>\n    '.join(details))
+        li_content.append('<br/>'.join(details))
         li_content.append('  </p>')
 
     li_content.append('</li>')
     return '\n'.join(li_content)
 
 
-def generate_html(data):
-    """Generates a full HTML file with animal data."""
-    animals_html = '\n'.join(serialize_animal(animal) for animal in data)
+def generate_html(data, template_path, output_path):
+    """Generates a new HTML file from a template with injected animal data."""
+    with open(template_path, "r") as template_file:
+        template_content = template_file.read()
 
-    html_template = f"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Animal Cards</title>
-        <style>
-            html {{ background-color: #ffe9e9; }}
-            h1 {{ text-align: center; font-size: 40pt; font-weight: normal; }}
-            body {{
-                font-family: 'Roboto','Helvetica Neue', Helvetica, Arial, sans-serif;
-                font-style: normal;
-                font-weight: 400;
-                letter-spacing: 0;
-                padding: 1rem;
-                text-rendering: optimizeLegibility;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                -moz-font-feature-settings: "liga" on;
-                width: 900px;
-                margin: auto;
-            }}
-            .cards {{ list-style: none; margin: 0; padding: 0; }}
-            .cards__item {{
-                background-color: white;
-                border-radius: 0.25rem;
-                box-shadow: 0 20px 40px -14px rgba(0,0,0,0.25);
-                overflow: hidden;
-                padding: 1rem;
-                margin: 50px;
-            }}
-            .card__title {{
-                color: #696969;
-                font-size: 1.25rem;
-                font-weight: 300;
-                letter-spacing: 2px;
-                text-transform: uppercase;
-            }}
-            .card__text {{
-                flex: 1 1 auto;
-                font-size: 0.95rem;
-                line-height: 2;
-                margin-bottom: 1.25rem;
-            }}
-        </style>
-    </head>
-    <body>
-        <h1>Animal Cards</h1>
-        <ul class="cards">
-            {animals_html}
-        </ul>
-    </body>
-    </html>
-    """
-    return html_template
+    animals_html = '\n'.join(serialize_animal(animal) for animal in data)
+    updated_html = template_content.replace("__REPLACE_ANIMALS_INFO__", animals_html)
+
+    with open(output_path, "w") as output_file:
+        output_file.write(updated_html)
 
 
 def main():
     """Main function to execute the program."""
     data = load_data("animals_data.json")
-    html_content = generate_html(data)
-
-    with open("animals_template.html", "w") as file:
-        file.write(html_content)
-
-    print("HTML file generated successfully.")
+    generate_html(data, "animals_template.html", "animals_output.html")
+    print("HTML file generated successfully as animals_output.html")
 
 
 if __name__ == "__main__":
