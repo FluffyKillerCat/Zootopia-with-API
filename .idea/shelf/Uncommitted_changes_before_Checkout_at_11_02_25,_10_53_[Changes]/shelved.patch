@@ -1,0 +1,256 @@
+Index: animals_web_generator.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import json\n\nimport data_fetcher\n\n\ndef get_animal_from_user():\n    \"\"\"Get Animal name from user\"\"\"\n    animal_name = input('Which Animal Would you like to display? ')\n    return animal_name\n\n\n\n\n\n\n\n\n\ndef load_data(file_path):\n    \"\"\"Loads a JSON file.\"\"\"\n    with open(file_path, \"r\") as handle:\n        return json.load(handle)\n\n\ndef get_skin_types(data):\n    \"\"\"Extracts all unique skin types from the dataset.\"\"\"\n    skin_types = set()\n    for animal in data:\n        if 'characteristics' in animal and 'skin_type' in animal['characteristics']:\n            skin_types.add(animal['characteristics']['skin_type'])\n    return list(skin_types)\n\n\ndef serialize_animal(animal_data):\n    \"\"\"Transforms an animal's data into an HTML list item.\"\"\"\n    if 'name' not in animal_data:\n        return \"\"\n\n    li_content = [f'<li class=\"cards__item\">']\n    li_content.append(f'  <div class=\"card__title\">{animal_data[\"name\"]}</div>')\n    details = []\n\n    if 'characteristics' in animal_data:\n        if 'diet' in animal_data['characteristics']:\n            details.append(f'<strong>Diet:</strong> {animal_data[\"characteristics\"][\"diet\"]}')\n        if 'type' in animal_data['characteristics']:\n            details.append(f'<strong>Type:</strong> {animal_data[\"characteristics\"][\"type\"]}')\n\n    if 'locations' in animal_data and animal_data['locations']:\n        details.append(f'<strong>Location:</strong> {animal_data[\"locations\"][0]}')\n\n    if details:\n        li_content.append('  <p class=\"card__text\">')\n        li_content.append('<br/>\\n    '.join(details))\n        li_content.append('  </p>')\n\n    li_content.append('</li>')\n    return '\\n'.join(li_content)\n\n\ndef generate_html(data, switch, animal):\n    \"\"\"Generates a full HTML file with animal data.\"\"\"\n    if switch:\n        animals_html = '\\n'.join(serialize_animal(animal) for animal in data)\n    else:\n        animals_html = f\"<h2>The animal {animal} doesn't exist.</h2>\"\n\n\n    html_template = f\"\"\"\n    <!DOCTYPE html>\n    <html lang=\"en\">\n    <head>\n        <meta charset=\"UTF-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n        <title>Animal Cards</title>\n        <style>\n            html {{ background-color: #ffe9e9; }}\n            h1 {{ text-align: center; font-size: 40pt; font-weight: normal; }}\n            body {{\n                font-family: 'Roboto','Helvetica Neue', Helvetica, Arial, sans-serif;\n                font-style: normal;\n                font-weight: 400;\n                letter-spacing: 0;\n                padding: 1rem;\n                text-rendering: optimizeLegibility;\n                -webkit-font-smoothing: antialiased;\n                -moz-osx-font-smoothing: grayscale;\n                -moz-font-feature-settings: \"liga\" on;\n                width: 900px;\n                margin: auto;\n            }}\n            .cards {{ list-style: none; margin: 0; padding: 0; }}\n            .cards__item {{\n                background-color: white;\n                border-radius: 0.25rem;\n                box-shadow: 0 20px 40px -14px rgba(0,0,0,0.25);\n                overflow: hidden;\n                padding: 1rem;\n                margin: 50px;\n            }}\n            .card__title {{\n                color: #696969;\n                font-size: 1.25rem;\n                font-weight: 300;\n                letter-spacing: 2px;\n                text-transform: uppercase;\n            }}\n            .card__text {{\n                flex: 1 1 auto;\n                font-size: 0.95rem;\n                line-height: 2;\n                margin-bottom: 1.25rem;\n            }}\n        </style>\n    </head>\n    <body>\n        <h1>Animal Cards</h1>\n        <ul class=\"cards\">\n            {animals_html}\n        </ul>\n    </body>\n    </html>\n    \"\"\"\n    return html_template\n\n\ndef main():\n    \"\"\"Main function to execute the program.\"\"\"\n    while True:\n        animal = get_animal_from_user()\n\n        data = data_fetcher.fetch_data(animal)\n        if data:\n\n            html_content = generate_html(data, True, animal)\n\n\n\n        else:\n\n            html_content = generate_html(data, False, animal)\n        with open(\"animals_template.html\", \"w\") as file:\n            file.write(html_content)\n\n        print(\"HTML file generated successfully.\")\n\n\nif __name__ == \"__main__\":\n    main()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/animals_web_generator.py b/animals_web_generator.py
+--- a/animals_web_generator.py	(revision b5d3945ad76aff5f3906de7de20946258107dc86)
++++ b/animals_web_generator.py	(date 1739267371542)
+@@ -1,5 +1,4 @@
+ import json
+-
+ import data_fetcher
+ 
+ 
+@@ -8,14 +7,6 @@
+     animal_name = input('Which Animal Would you like to display? ')
+     return animal_name
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+ def load_data(file_path):
+     """Loads a JSON file."""
+     with open(file_path, "r") as handle:
+@@ -26,102 +17,54 @@
+     """Extracts all unique skin types from the dataset."""
+     skin_types = set()
+     for animal in data:
+-        if 'characteristics' in animal and 'skin_type' in animal['characteristics']:
+-            skin_types.add(animal['characteristics']['skin_type'])
++        skin_type = animal.get('characteristics', {}).get('skin_type')
++        if skin_type:
++            skin_types.add(skin_type)
+     return list(skin_types)
+ 
+ 
+ def serialize_animal(animal_data):
+     """Transforms an animal's data into an HTML list item."""
+-    if 'name' not in animal_data:
++    name = animal_data.get('name', "")
++    if not name:
+         return ""
+ 
+     li_content = [f'<li class="cards__item">']
+-    li_content.append(f'  <div class="card__title">{animal_data["name"]}</div>')
++    li_content.append(f'  <div class="card__title">{name}</div>')
+     details = []
+ 
+-    if 'characteristics' in animal_data:
+-        if 'diet' in animal_data['characteristics']:
+-            details.append(f'<strong>Diet:</strong> {animal_data["characteristics"]["diet"]}')
+-        if 'type' in animal_data['characteristics']:
+-            details.append(f'<strong>Type:</strong> {animal_data["characteristics"]["type"]}')
++    characteristics = animal_data.get('characteristics', {})
++    diet = characteristics.get('diet')
++    if diet:
++        details.append(f'<strong>Diet:</strong> {diet}')
+ 
+-    if 'locations' in animal_data and animal_data['locations']:
+-        details.append(f'<strong>Location:</strong> {animal_data["locations"][0]}')
++    type_ = characteristics.get('type')
++    if type_:
++        details.append(f'<strong>Type:</strong> {type_}')
++
++    locations = animal_data.get('locations', [])
++    if locations:
++        details.append(f'<strong>Location:</strong> {locations[0]}')
+ 
+     if details:
+         li_content.append('  <p class="card__text">')
+-        li_content.append('<br/>\n    '.join(details))
++        li_content.append('<br/>'.join(details))
+         li_content.append('  </p>')
+ 
+     li_content.append('</li>')
+     return '\n'.join(li_content)
+ 
+ 
+-def generate_html(data, switch, animal):
+-    """Generates a full HTML file with animal data."""
+-    if switch:
+-        animals_html = '\n'.join(serialize_animal(animal) for animal in data)
+-    else:
+-        animals_html = f"<h2>The animal {animal} doesn't exist.</h2>"
++def generate_html(data, template_path, output_path):
++    """Generates a new HTML file from a template with injected animal data."""
++    with open(template_path, "r") as template_file:
++        template_content = template_file.read()
++
++    animals_html = '\n'.join(serialize_animal(animal) for animal in data)
++    updated_html = template_content.replace("__REPLACE_ANIMALS_INFO__", animals_html)
+ 
+-
+-    html_template = f"""
+-    <!DOCTYPE html>
+-    <html lang="en">
+-    <head>
+-        <meta charset="UTF-8">
+-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-        <title>Animal Cards</title>
+-        <style>
+-            html {{ background-color: #ffe9e9; }}
+-            h1 {{ text-align: center; font-size: 40pt; font-weight: normal; }}
+-            body {{
+-                font-family: 'Roboto','Helvetica Neue', Helvetica, Arial, sans-serif;
+-                font-style: normal;
+-                font-weight: 400;
+-                letter-spacing: 0;
+-                padding: 1rem;
+-                text-rendering: optimizeLegibility;
+-                -webkit-font-smoothing: antialiased;
+-                -moz-osx-font-smoothing: grayscale;
+-                -moz-font-feature-settings: "liga" on;
+-                width: 900px;
+-                margin: auto;
+-            }}
+-            .cards {{ list-style: none; margin: 0; padding: 0; }}
+-            .cards__item {{
+-                background-color: white;
+-                border-radius: 0.25rem;
+-                box-shadow: 0 20px 40px -14px rgba(0,0,0,0.25);
+-                overflow: hidden;
+-                padding: 1rem;
+-                margin: 50px;
+-            }}
+-            .card__title {{
+-                color: #696969;
+-                font-size: 1.25rem;
+-                font-weight: 300;
+-                letter-spacing: 2px;
+-                text-transform: uppercase;
+-            }}
+-            .card__text {{
+-                flex: 1 1 auto;
+-                font-size: 0.95rem;
+-                line-height: 2;
+-                margin-bottom: 1.25rem;
+-            }}
+-        </style>
+-    </head>
+-    <body>
+-        <h1>Animal Cards</h1>
+-        <ul class="cards">
+-            {animals_html}
+-        </ul>
+-    </body>
+-    </html>
+-    """
+-    return html_template
++    with open(output_path, "w") as output_file:
++        output_file.write(updated_html)
+ 
+ 
+ def main():
+@@ -146,4 +89,4 @@
+ 
+ 
+ if __name__ == "__main__":
+-    main()
++    main()
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"AutoImportSettings\">\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\n  </component>\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"1cc80fc7-4709-4310-ae83-db228bf60176\" name=\"Changes\" comment=\"\" />\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n  </component>\n  <component name=\"ProjectColorInfo\">{\n  &quot;associatedIndex&quot;: 6\n}</component>\n  <component name=\"ProjectId\" id=\"2sCkYhcY4ohMeIbghVhf9Zkz08k\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\" />\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\"><![CDATA[{\n  \"keyToString\": {\n    \"Python.animals_web_generator.executor\": \"Run\",\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\n    \"git-widget-placeholder\": \"API\"\n  },\n  \"keyToStringList\": {\n    \"com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File\": [\n      \"Requirements\"\n    ]\n  }\n}]]></component>\n  <component name=\"SharedIndexes\">\n    <attachedChunks>\n      <set>\n        <option value=\"bundled-python-sdk-0e3be3396995-c546a90a8094-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.23339.19\" />\n      </set>\n    </attachedChunks>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"1cc80fc7-4709-4310-ae83-db228bf60176\" name=\"Changes\" comment=\"\" />\n      <created>1737966993680</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1737966993680</updated>\n    </task>\n    <servers />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision b5d3945ad76aff5f3906de7de20946258107dc86)
++++ b/.idea/workspace.xml	(date 1739267427718)
+@@ -4,7 +4,11 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="1cc80fc7-4709-4310-ae83-db228bf60176" name="Changes" comment="" />
++    <list default="true" id="1cc80fc7-4709-4310-ae83-db228bf60176" name="Changes" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/animals_web_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/animals_web_generator.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/data_fetcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_fetcher.py" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -18,6 +22,11 @@
+     </option>
+   </component>
+   <component name="Git.Settings">
++    <option name="RECENT_BRANCH_BY_REPOSITORY">
++      <map>
++        <entry key="$PROJECT_DIR$" value="main" />
++      </map>
++    </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+   <component name="ProjectColorInfo">{
+@@ -29,18 +38,18 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "Python.animals_web_generator.executor": "Run",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "git-widget-placeholder": "API"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Python.animals_web_generator.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;API&quot;
+   },
+-  "keyToStringList": {
+-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+-      "Requirements"
++  &quot;keyToStringList&quot;: {
++    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
++      &quot;Requirements&quot;
+     ]
+   }
+-}]]></component>
++}</component>
+   <component name="SharedIndexes">
+     <attachedChunks>
+       <set>
+Index: data_fetcher.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import requests\nimport os\nfrom dotenv import load_dotenv\nload_dotenv()\nAPI_KEY = os.getenv('API_KEY')\n\ndef fetch_data(animal):\n    URL = f\"https://api.api-ninjas.com/v1/animals?name={animal}\"\n    res = requests.get(URL, headers={'X-Api-Key': API_KEY})\n    return res.json()
+===================================================================
+diff --git a/data_fetcher.py b/data_fetcher.py
+--- a/data_fetcher.py	(revision b5d3945ad76aff5f3906de7de20946258107dc86)
++++ b/data_fetcher.py	(date 1739266930050)
+@@ -4,7 +4,13 @@
+ load_dotenv()
+ API_KEY = os.getenv('API_KEY')
+ 
++
+ def fetch_data(animal):
+     URL = f"https://api.api-ninjas.com/v1/animals?name={animal}"
+-    res = requests.get(URL, headers={'X-Api-Key': API_KEY})
+-    return res.json()
+\ No newline at end of file
++    try:
++        res = requests.get(URL, headers={'X-Api-Key': API_KEY}, timeout=10)
++        res.raise_for_status()
++        return res.json()
++    except requests.exceptions.RequestException:
++        print(f"Request Time Out")
++        return None
